@@ -12,7 +12,7 @@ db=mysql.connector.connect(
 
 mycursor=db.cursor()
 
-contact_mang_title=Label(root,text="Manage contacts")
+contact_mang_title=Label(root,text="Manage contacts",font=("Arial",25))
 contact_mang_title.grid(row=0,column=0)
 
 mycursor.execute("select * from contacts;")
