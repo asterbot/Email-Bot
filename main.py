@@ -1,5 +1,4 @@
 from tkinter import *
-import execution
 import smtplib
 import ssl
 from email.mime.text import MIMEText
@@ -9,6 +8,7 @@ import mysql.connector
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Database and table setup
+
 
 def db_connect():
 
@@ -24,6 +24,7 @@ def db_connect():
         db.cursor(buffered=True).execute("create database email_bot")
 
     return db
+
 
 db = db_connect()
 mycursor = db.cursor(buffered=True)
@@ -50,6 +51,8 @@ createtab(
     "emails",
     "msgid int primary key, sent boolean, timestamp datetime, subjcet varchar(200), content mediumtext",
 )
+
+
 createtab(
     "contacts", "fname varchar(50), lname varchar(50), email varchar(50) primary key"
 )
@@ -65,6 +68,26 @@ def removeall():
             widgets.extend(item.winfo_children())
     for item in widgets:
         item.grid_forget()
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+def login():
+
+    global sender
+    global password
+    global options_title
+    global contact_mang_button
+    global email_mang_button
+    sender = username_entry.get()
+    password = password_entry.get()
+
+    removeall()
+
+    options_title.grid(row=0, column=1)
+    contact_mang_button.grid(row=1, column=0)
+    email_mang_button.grid(row=1, column=2)
 
 
 # ----------------------------------------------------------------------------------------------------------------------
