@@ -4,12 +4,28 @@ import smtplib
 import ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import mysql.connector
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Database and table setup
 
-db = execution.db_connect()
+def db_connect():
 
+    try:
+        db = mysql.connector.connect(
+            host="localhost", user="root", passwd="password", database="email_bot"
+        )
+
+    # create database if it doesn't exist
+    except:
+        db = mysql.connector.connect(host="localhost", user="root", passwd="password")
+
+        db.cursor(buffered=True).execute("create database email_bot")
+
+    return db
+
+db = db_connect()
 mycursor = db.cursor(buffered=True)
 
 # create tables if they don't exist
