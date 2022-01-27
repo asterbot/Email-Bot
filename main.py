@@ -1,10 +1,11 @@
+from logging import raiseExceptions
 from tkinter import *
 import smtplib
 import ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import mysql.connector
-
+from tkinter import messagebox
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Database and table setup
@@ -19,7 +20,8 @@ def db_connect():
 
     # create database if it doesn't exist
     except:
-        db = mysql.connector.connect(host="localhost", user="root", passwd="password")
+        db = mysql.connector.connect(
+            host="localhost", user="root", passwd="password")
 
         db.cursor(buffered=True).execute("create database email_bot")
 
@@ -161,19 +163,79 @@ def email_mang():
 def add_manual_contact(fname, lname, email):
     """Adds contact to database manually."""
 
-    db.cursor(buffered=True).execute(
-        f"INSERT INTO CONTACTS (fname, lname, email) VALUES ('{fname}', '{lname}', '{email}');"
-    )
+    try:
+        db.cursor(buffered=True).execute(
+            f"INSERT INTO CONTACTS (fname, lname, email) VALUES ('{fname}', '{lname}', '{email}');"
+        )
+    except mysql.connector.errors.IntegrityError:
+
+        messagebox.showerror(
+            "Duplicate Entry", "A contact already exists with this email address. Please try again. Click the Delete Contact button to remove the contact.")
+
+    db.commit()
+
+    # clear entry boxes
+    fname_entry.delete(0, END)
+    lname_entry.delete(0, END)
+    email_entry.delete(0, END)
 
 
 def delete_contact(email):
     """Deletes contact from database."""
 
-    db.cursor(buffered=True).execute(f"DELETE FROM CONTACTS WHERE email = '{email}';")
+    try:
+        if email == "":
+            messagebox.showerror("No Contact Selected",
+                                 "Please select a contact to delete.")
+            return
+
+        db.cursor(buffered=True).execute(
+            f"DELETE FROM CONTACTS WHERE email = '{email}';")
+
+        messagebox.showinfo("Contact Deleted", "Contact has been deleted.")
+        email.delete(0, END)
+
+    except:
+        messagebox.showerror("Error", "Contact could not be deleted.")
 
 
 def contact_mang():
+    """Contact management window."""
     removeall()
+
+    global fname_entry, lname_entry, email_entry
+
+    title = Label(root, text="Contact Management")
+    title.grid(row=0, column=0)
+
+    fname_label = Label(root, text="Enter First Name:")
+    fname_label.grid(row=1, column=0)
+    fname_entry = Entry(root, exportselection=0, fg="blue")
+    fname_entry.grid(row=1, column=1)
+
+    lname_label = Label(root, text="Enter Last Name:")
+    lname_label.grid(row=2, column=0)
+    lname_entry = Entry(root, exportselection=0, fg="blue")
+    lname_entry.grid(row=2, column=1)
+
+    email_label = Label(root, text="Enter Email*:")
+    email_label.grid(row=3, column=0)
+    email_entry = Entry(root, exportselection=0, fg="blue")
+    email_entry.grid(row=3, column=1)
+
+    add_contact_button = Button(root, text="Add Contact", command=lambda: add_manual_contact(
+        fname_entry.get(), lname_entry.get(), email_entry.get()))
+    add_contact_button.grid(row=4, column=0)
+
+    delete_contact_button = Button(
+        root, text="Delete Contact", command=lambda: delete_contact(email_entry.get()))
+    delete_contact_button.grid(row=4, column=1)
+
+    info_label = Label(root, text="*Enter only the email to delete a contact.")
+    info_label.grid(row=5, column=0)
+
+    back_button = Button(root, text="Back", command=mainscreen)
+    back_button.grid(row=6, column=0)
 
 
 removeall()
@@ -197,12 +259,23 @@ login_button.grid(row=3, column=0)
 
 # Options menu
 options_title = Label(root, text="Menu")
-contact_mang_button = Button(root, text="Contact management", command=contact_mang)
+contact_mang_button = Button(
+    root, text="Contact management", command=contact_mang)
 email_mang_button = Button(root, text="Email management", command=email_mang)
+
+
+def mainscreen():
+    """Main screen window."""
+    removeall()
+
+    options_title.grid(row=0, column=1)
+    contact_mang_button.grid(row=1, column=0)
+    email_mang_button.grid(row=1, column=2)
 
 
 def login():
     """Login to email"""
+
     global sender
     global password
     global options_title
@@ -211,11 +284,7 @@ def login():
     sender = username_entry.get()
     password = password_entry.get()
 
-    removeall()
-
-    options_title.grid(row=0, column=1)
-    contact_mang_button.grid(row=1, column=0)
-    email_mang_button.grid(row=1, column=2)
+    mainscreen()
 
 
 root.mainloop()
