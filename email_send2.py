@@ -1,8 +1,24 @@
 from tkinter import *
-from execution import db_connect
+import mysql.connector
 from tkinter import messagebox
 
 root=Tk()
+
+def db_connect():
+
+    try:
+        db = mysql.connector.connect(
+            host="localhost", user="root", passwd="arjun2004", database="email_bot"
+        )
+
+    # create database if it doesn't exist
+    except:
+        db = mysql.connector.connect(
+            host="localhost", user="root", passwd="password")
+
+        db.cursor(buffered=True).execute("create database email_bot")
+
+    return db
 
 db=db_connect()
 
@@ -18,23 +34,28 @@ def removeall():
         item.grid_forget()
         
 
+def getcontacts():
+    mycursor.execute("select * from contacts;")
+    names=[]
+    emails=[]
+    for i in mycursor:
+        names.append(i[0]+" "+i[1])
+        emails.append(i[2])                                                                     
+    return names,emails
+names=getcontacts()[0]
+emails=getcontacts()[1]
 
-mycursor.execute("select * from contacts;")
-names=[]
-emails=[]
-for i in mycursor:
-    names.append(i[0]+" "+i[1])
-    emails.append(i[2])                                                                     
+def getmessages():
+    mycursor.execute("select * from emails;")
+    messages=[]
+    for i in mycursor:
+        i=list(i)
+        if "\n" in i[2]:
+            i[2]=i[2].replace("\n","<br>")
+        messages.append(tuple(i))
+    return messages
 
-#print(names)
-#print(emails)
-
-mycursor.execute("select * from emails;")
-messages=[]
-for i in mycursor:
-    messages.append(i)
-#print(messages)
-
+messages=getmessages()
 
 '''
 def send_emails():
@@ -63,8 +84,8 @@ scrollbar_contacts = Scrollbar(root,orient="vertical")
 scrollbar_contacts.grid(row=1,column=1,ipady=170,sticky='e')
 listbox_contacts=Listbox(root, selectmode="multiple",selectbackground="#90EE90")
 
-for i in range(len(emails)):
-    listbox_contacts.insert(END,names[i]+"("+emails[i]+")")
+for i in range(len(getmessages())):
+    listbox_contacts.insert(END,names[i]+"("+getcontacts()[1][i]+")")
 
 listbox_contacts.config(yscrollcommand=scrollbar_contacts.set)
 listbox_contacts.grid_forget()
@@ -116,9 +137,52 @@ def open_pastmsgs():
 
 def addnewmsg():
     top=Toplevel(root)
-    top.title("Add new message")
-    top.geometry("400x400")
+    def handle_click(event):
+        subject_top_entry.delete(0,END)
+        subject_top_entry.config(fg="black")
     
+    def handle_click_2(event):
+        msg_top.delete("1.0",END)
+        msg_top.config(fg="black")
+
+    def add_msg():
+        subject=subject_top_entry.get()
+        msg=msg_top.get("1.0",END)
+        """Adds message to messagelist."""
+        try:
+            newmsgid=getmessages()[-1][0]+1
+            db.cursor(buffered=True).execute(
+                f"INSERT INTO EMAILS VALUES ('{newmsgid}', '{subject}', '{msg}');"
+            )
+        except mysql.connector.errors.IntegrityError:
+
+            messagebox.showerror(
+                "Duplicate Entry", "A contact already exists with this email address. Please try again. Click the Delete Contact button to remove the contact.")
+
+        db.commit()
+        # clear entry boxes
+        subject_top_entry.delete(0, END)
+        msg_top.delete("1.0", END)
+        listbox_messages.delete(0,END)
+        for i in range(len(getmessages())):
+            stuff=getmessages()[i][1]
+            listbox_messages.insert(END,stuff)
+        
+    top.title("Add new message")
+    title_top=Label(top,text="Enter new message",font=("Arial",15))
+    title_top.grid(row=0,column=0,pady=20)
+    subject_top_entry=Entry(top,exportselection=0,width=54,fg="#696969")
+    subject_top_entry.insert(0,"Subject")
+    subject_top_entry.grid(row=1,column=0,columnspan=2)
+    subject_top_entry.bind("<1>", handle_click)
+
+    msg_top=Text(top,width=40,fg="#696969")
+    msg_top.insert(END,"Type your message here...")
+    msg_top.grid(row=2,column=0,columnspan=2,pady=20)
+    msg_top.bind("<1>", handle_click_2)
+
+    send_btn_top=Button(top,text="Add message",width=20,height=2,bg="#90EE90",command=add_msg)
+    send_btn_top.grid(row=3,column=0)
     top.mainloop()
 
 
@@ -131,8 +195,8 @@ scrollbar_messages.grid_forget()
 listbox_messages=Listbox(root,selectbackground="#90EE90")
 listbox_messages.grid_forget()
 
-for i in range(len(messages)):
-    stuff=messages[i][1]
+for i in range(len(getmessages())):
+    stuff=getmessages()[i][1]
     listbox_messages.insert(END,stuff)
 
 
