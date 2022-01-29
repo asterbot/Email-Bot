@@ -213,15 +213,14 @@ def vieweditmsg():
             listbox_messages.insert(END,stuff)
         messagebox.showinfo("Info","This message has been edited")
         top.withdraw()
-
-    top=Toplevel(root)
-    top.title("View message")
-    title_top=Label(top,text="View/Edit message",font=("Arial",15))
-    title_top.grid(row=0,column=0,pady=20)
     try:
         sel=listbox_messages.curselection()[0]
         subject=messages[sel][1]
         msg=messages[sel][2]
+        top=Toplevel(root)
+        top.title("View message")
+        title_top=Label(top,text="View/Edit message",font=("Arial",15))
+        title_top.grid(row=0,column=0,pady=20)
         subject_top_entry=Entry(top,exportselection=0,width=54)
         subject_top_entry.insert(0,subject)
         subject_top_entry.grid(row=1,column=0,columnspan=2)
