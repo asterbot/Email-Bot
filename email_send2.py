@@ -85,7 +85,7 @@ scrollbar_contacts.grid(row=1,column=1,ipady=170,sticky='e')
 listbox_contacts=Listbox(root, selectmode="multiple",selectbackground="#90EE90")
 
 for i in range(len(getmessages())):
-    listbox_contacts.insert(END,names[i]+"("+getcontacts()[1][i]+")")
+    listbox_contacts.insert(END,names[i]+"("+emails[i]+")")
 
 listbox_contacts.config(yscrollcommand=scrollbar_contacts.set)
 listbox_contacts.grid_forget()
@@ -136,6 +136,7 @@ def open_pastmsgs():
     backtocontacts.grid(row=5,column=1)
 
 def addnewmsg():
+    global messages
     top=Toplevel(root)
     def handle_click(event):
         subject_top_entry.delete(0,END)
@@ -146,11 +147,12 @@ def addnewmsg():
         msg_top.config(fg="black")
 
     def add_msg():
+        global messages
+        """Adds message to messagelist."""
         subject=subject_top_entry.get()
         msg=msg_top.get("1.0",END)
-        """Adds message to messagelist."""
         try:
-            newmsgid=getmessages()[-1][0]+1
+            newmsgid=messages[-1][0]+1
             db.cursor(buffered=True).execute(
                 f"INSERT INTO EMAILS VALUES ('{newmsgid}', '{subject}', '{msg}');"
             )
@@ -164,8 +166,9 @@ def addnewmsg():
         subject_top_entry.delete(0, END)
         msg_top.delete("1.0", END)
         listbox_messages.delete(0,END)
-        for i in range(len(getmessages())):
-            stuff=getmessages()[i][1]
+        messages=getmessages()
+        for i in range(len(messages)):
+            stuff=messages[i][1]
             listbox_messages.insert(END,stuff)
         
     top.title("Add new message")
