@@ -15,7 +15,7 @@ def db_connect():
 
     try:
         db = mysql.connector.connect(
-            host="localhost", user="root", passwd="arjun2004", database="email_bot"
+            host="localhost", user="root", passwd="password", database="email_bot"
         )
 
     # create database if it doesn't exist
@@ -58,6 +58,29 @@ createtab(
 createtab(
     "contacts", "fname varchar(50), lname varchar(50), email varchar(50) primary key"
 )
+
+def getcontacts():
+    mycursor.execute("select * from contacts;")
+    names=[]
+    emails=[]
+    for i in mycursor:
+        names.append(i[0]+" "+i[1])
+        emails.append(i[2])                                                                     
+    return names,emails
+names=getcontacts()[0]
+emails=getcontacts()[1]
+
+def getmessages():
+    mycursor.execute("select * from emails;")
+    messages=[]
+    for i in mycursor:
+        i=list(i)
+        if "\n" in i[2]:
+            i[2]=i[2].replace("\n","<br>")
+        messages.append(tuple(i))
+    return messages
+
+messages=getmessages()
 
 root = Tk()
 

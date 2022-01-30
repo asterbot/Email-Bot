@@ -109,19 +109,6 @@ select_all_button=Button(root,text="Select all",bg="orange",width=20,height=2,co
 select_all_button.grid_forget()
 open_contacts()
 
-
-'''
-#Message
-msg_title=Label(root,text="Write message",font=("Arial",25))
-msg_title.grid(row=0,column=1)
-
-msg=Text(root)
-msg.grid(row=1,column=1,padx=20)
-
-send_button=Button(root,text="Send emails",width=20,height=2,bg="cyan",command=send_emails)
-send_button.grid(row=2,column=1)
-'''
-
 #Past messages
 
 def open_pastmsgs():
