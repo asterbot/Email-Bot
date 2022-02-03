@@ -161,7 +161,6 @@ def send_email():
         )
         html = MIMEText(html, "html")
 
-        # message.attach(plaintext)
         message.attach(html)
 
         try:
