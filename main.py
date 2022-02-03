@@ -16,7 +16,7 @@ def db_connect():
 
     try:
         db = mysql.connector.connect(
-            host="localhost", user="root", passwd="password", database="email_bot"
+            host="localhost", user="root", passwd="arjun2004", database="email_bot"
         )
 
     # create database if it doesn't exist
@@ -165,12 +165,15 @@ def send_email():
 
         try:
             server.sendmail(sender, send_mails[i], message.as_string())
-            print("sent")
+            #print("sent")
         except:
-            print("fail")
+            #print("fail")
+            messagebox.showerror("Error","Email could not be sent")
 
     for i in range(len(send_mails)):
         send_email_to_one(i)
+    else:
+        messagebox.showinfo("Info","Email(s) sent")
 
 
 def viewmsg():
@@ -222,6 +225,9 @@ def send_mail():
         root, text="Send mail", bg="#90EE90", font=("Arial", 10), command=send_email
     )
     sendmailbutton.grid(row=2, column=4, padx=20)
+
+    backbutton=Button(root,text="Back",command=mainscreen)
+    backbutton.grid(row=3,column=0)
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -384,17 +390,49 @@ def vieweditmsg():
 
         # display message
         messagebox.showinfo("Info", "This message has been edited")
-        top.withdraw()
+        top.destroy()
+    def add_stuff(stuff):
+            msg_top.insert(msg_top.index(INSERT), stuff)
+    
+    def del_msg():
+        """Deletes message from database."""
+
+        global messages
+
+        # get message id
+        msgid = messages[listbox_messages.curselection()[0]][0]
+
+        # delete message
+        db.cursor(buffered=True).execute(
+            f"DELETE FROM EMAILS WHERE MSGID = '{msgid}';"
+        )
+        db.commit()
+
+        # clear entry boxes
+        subject_top_entry.delete(0, END)
+        msg_top.delete("1.0", END)
+        listbox_messages.delete(0, END)
+        messages = getmessages()
+
+        for i in range(len(messages)):
+            stuff = messages[i][1]
+            listbox_messages.insert(END, stuff)
+
+        # display message
+        messagebox.showinfo("Info", "This message has been deleted")
+        top.destroy()
+
 
     try:
+
         sel = listbox_messages.curselection()[0]
         subject = messages[sel][1]
-        msg = messages[sel][2]
+        msg = messages[sel][2].replace("<br>","\n")
         top = Toplevel(root)
 
         # view message window
         top.title("View message")
-        title_top = Label(top, text="View/Edit message", font=("Arial", 15))
+        title_top = Label(top, text="View/Edit/Delete message", font=("Arial", 15))
         title_top.grid(row=0, column=0, pady=20)
         subject_top_entry = Entry(top, exportselection=0, width=54)
         subject_top_entry.insert(0, subject)
@@ -404,10 +442,22 @@ def vieweditmsg():
         msg_top.insert(END, msg)
         msg_top.grid(row=2, column=0, columnspan=2, pady=20)
 
+    
+        fname_add_button=Button(top,text="First name",command=lambda: add_stuff("{fname}"))
+        fname_add_button.grid(row=2,column=2,pady=80,sticky="N")
+        lname_add_button=Button(top,text="Last name",command=lambda: add_stuff("{lname}"))
+        lname_add_button.grid(row=2,column=2)
+        mail_add_button=Button(top,text="Email ID",command=lambda: add_stuff("{email}"))
+        mail_add_button.grid(row=2,column=2,pady=80,sticky="S")
+
         send_btn_top = Button(
             top, text="Edit message", width=20, height=2, bg="#90EE90", command=edit_msg
         )
         send_btn_top.grid(row=3, column=0)
+
+        delete_btn_top = Button(top,text="Delete message",width=20,height=2,bg="#EE4B2B",command=del_msg)
+        delete_btn_top.grid(row=4,column=0)
+
         top.mainloop()
 
     except:
@@ -424,6 +474,7 @@ def addnewmsg():
     def handle_click(event):
         subject_top_entry.delete(0, END)
         subject_top_entry.config(fg="black")
+
 
     def handle_click_2(event):
         msg_top.delete("1.0", END)
@@ -462,19 +513,32 @@ def addnewmsg():
             listbox_messages.insert(END, stuff)
 
         messagebox.showinfo("Info", "This message has been added")
+    
+    def add_stuff(stuff):
+        msg_top.insert(msg_top.index(INSERT), stuff)
 
     top.title("Add new message")
     title_top = Label(top, text="Enter new message", font=("Arial", 15))
     title_top.grid(row=0, column=0, pady=20)
     subject_top_entry = Entry(top, exportselection=0, width=54, fg="#696969")
-    subject_top_entry.insert(0, "Subject")
-    subject_top_entry.grid(row=1, column=0, columnspan=2)
-    subject_top_entry.bind("<1>", handle_click)
 
+    subject_top_entry.insert(0, "Subject...")
+    subject_top_entry.grid(row=1, column=0, columnspan=2)
+    subject_top_entry.bind("<FocusIn>", handle_click)
+    
+    
     msg_top = Text(top, width=40, fg="#696969")
     msg_top.insert(END, "Type your message here...")
     msg_top.grid(row=2, column=0, columnspan=2, pady=20)
-    msg_top.bind("<1>", handle_click_2)
+    msg_top.bind("<FocusIn>", handle_click_2)
+
+    fname_add_button=Button(top,text="First name",command=lambda: add_stuff("{fname}"))
+    fname_add_button.grid(row=2,column=2,sticky="N",pady=80)
+    lname_add_button=Button(top,text="Last name",command=lambda: add_stuff("{lname}"))
+    lname_add_button.grid(row=2,column=2)
+    mail_add_button=Button(top,text="Email ID",command=lambda: add_stuff("{email}"))
+    mail_add_button.grid(row=2,column=2,sticky="S",pady=80)
+    
 
     send_btn_top = Button(
         top, text="Add message", width=20, height=2, bg="#90EE90", command=add_msg
@@ -495,7 +559,7 @@ def email_mang():
 
     viewmsgbutton = Button(
         root,
-        text="View/Edit message",
+        text="View/Edit/Delete message",
         bg="cyan",
         width=20,
         height=2,
