@@ -115,10 +115,10 @@ def removeall():
 
 
 def login():
-
+    """Login to emailbot."""
     global sender, password, login_button, options_title, contact_mang_button, email_mang_button, send_email_button
-    sender = username_entry.get()
-    password = password_entry.get()
+    sender = username_entry.get().strip()
+    password = password_entry.get().strip()
 
     removeall()
 
@@ -136,10 +136,12 @@ def send_email():
     """Send email to contacts."""
     global sender, password
 
+    # login to gmail server
     context = ssl.create_default_context()
     server = smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context)
     server.login(sender, password)
 
+    # get info
     names = getcontacts()[0]
     emails = getcontacts()[1]
     messages = getmessages()
@@ -170,6 +172,7 @@ def send_email():
             #print("fail")
             messagebox.showerror("Error","Email could not be sent")
 
+    # send emails
     for i in range(len(send_mails)):
         send_email_to_one(i)
     else:
@@ -177,7 +180,7 @@ def send_email():
 
 
 def viewmsg():
-    """View message screen."""
+    """View message window."""
     global listbox_messages
 
     sel = listbox_messages.curselection()[0]
@@ -202,6 +205,7 @@ def viewmsg():
 
 
 def send_mail():
+    """Send email window."""
     global listbox_contacts, listbox_messages
     removeall()
 
@@ -259,9 +263,8 @@ def add_manual_contact(fname, lname, email):
 
 
 def delete_contact(email):
+    """Delete contact from database."""
     global listbox_contacts
-
-    """Deletes contact from database."""
 
     try:
         if email == "":
@@ -291,6 +294,7 @@ def delete_contact(email):
 
 def contact_mang():
     """Contact management window."""
+
     removeall()
 
     global fname_entry, lname_entry, email_entry, emails, names, messages, listbox_contacts
@@ -356,6 +360,7 @@ scrollbar_contacts.config(command=listbox_contacts.yview)
 
 def vieweditmsg():
     """Edit message window."""
+
     global messages
 
     def edit_msg():
@@ -548,6 +553,8 @@ def addnewmsg():
 
 
 def email_mang():
+    """Email management window."""
+
     global listbox_messages
     removeall()
     pastmsgs = Label(root, text="Manage Messages", font=("Arial", 20))
