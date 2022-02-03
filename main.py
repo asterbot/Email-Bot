@@ -449,11 +449,11 @@ def vieweditmsg():
 
     
         fname_add_button=Button(top,text="First name",command=lambda: add_stuff("{fname}"))
-        fname_add_button.grid(row=2,column=2,pady=80,sticky="N")
+        fname_add_button.grid(row=2,column=2,pady=150,sticky="N")
         lname_add_button=Button(top,text="Last name",command=lambda: add_stuff("{lname}"))
         lname_add_button.grid(row=2,column=2)
         mail_add_button=Button(top,text="Email ID",command=lambda: add_stuff("{email}"))
-        mail_add_button.grid(row=2,column=2,pady=80,sticky="S")
+        mail_add_button.grid(row=2,column=2,pady=150,sticky="S")
 
         send_btn_top = Button(
             top, text="Edit message", width=20, height=2, bg="#90EE90", command=edit_msg
@@ -538,11 +538,11 @@ def addnewmsg():
     msg_top.bind("<FocusIn>", handle_click_2)
 
     fname_add_button=Button(top,text="First name",command=lambda: add_stuff("{fname}"))
-    fname_add_button.grid(row=2,column=2,sticky="N",pady=80)
+    fname_add_button.grid(row=2,column=2,sticky="N",pady=150)
     lname_add_button=Button(top,text="Last name",command=lambda: add_stuff("{lname}"))
     lname_add_button.grid(row=2,column=2)
     mail_add_button=Button(top,text="Email ID",command=lambda: add_stuff("{email}"))
-    mail_add_button.grid(row=2,column=2,sticky="S",pady=80)
+    mail_add_button.grid(row=2,column=2,sticky="S",pady=150)
     
 
     send_btn_top = Button(
