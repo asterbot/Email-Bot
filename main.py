@@ -114,18 +114,26 @@ def removeall():
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def login():
+def login(event=None):
     """Login to emailbot."""
-    global sender, password, login_button, options_title, contact_mang_button, email_mang_button, send_email_button
+    global sender, password, login_button, options_title, contact_mang_button, email_mang_button, send_email_button,server
     sender = username_entry.get().strip()
     password = password_entry.get().strip()
 
-    removeall()
+    try:
+        # login to gmail server
+        context = ssl.create_default_context()
+        server = smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context)
+        server.login(sender, password)
+    
+        removeall()
 
-    options_title.grid(row=0, column=1)
-    contact_mang_button.grid(row=1, column=0)
-    email_mang_button.grid(row=1, column=2)
-    send_email_button.grid(row=2, column=1)
+        options_title.grid(row=0, column=1)
+        contact_mang_button.grid(row=1, column=0)
+        email_mang_button.grid(row=1, column=2)
+        send_email_button.grid(row=2, column=1)
+    except:
+        messagebox.showerror("Error","We were not able to log you in. This could be because\n- You entered incorrect credentials, or \n- You do not have a stable network connection")
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -134,19 +142,22 @@ def login():
 
 def send_email():
     """Send email to contacts."""
-    global sender, password
+    global sender, password,server
 
-    # login to gmail server
-    context = ssl.create_default_context()
-    server = smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context)
-    server.login(sender, password)
-
+    
     # get info
     names = getcontacts()[0]
     emails = getcontacts()[1]
     messages = getmessages()
     send_people = [names[i] for i in list(listbox_contacts.curselection())]
     send_mails = [emails[i] for i in list(listbox_contacts.curselection())]
+
+    if send_people==[]:
+        messagebox.showerror("Error","You must select at least one contact")
+        return
+    if listbox_messages.curselection()==():
+        messagebox.showerror("Error","You must select a message to send")
+        return 
 
     def send_email_to_one(i):
         """Send email to one contact."""
@@ -212,13 +223,13 @@ def send_mail():
     title = Label(root, text="Send Email", font=("Arial", 20))
     title.grid(row=0, column=0)
     choose_emails_label = Label(root, text="Choose Email(s)")
-    choose_emails_label.grid(row=1, column=0)
-    scrollbar_contacts.grid(row=2, column=1, pady=40, ipady=110, sticky="w")
+    choose_emails_label.grid(row=1, column=0,sticky="S")
+    scrollbar_contacts.grid(row=2, column=1,ipady=170, sticky="w")
     listbox_contacts.grid(row=2, column=0, ipadx=100, ipady=110)
     listbox_contacts.config(selectmode="multiple")
 
-    choose_messages_label = Label(root, text="Choose Messages")
-    choose_messages_label.grid(row=1, column=2)
+    choose_messages_label = Label(root, text="Choose Message")
+    choose_messages_label.grid(row=1, column=2,sticky="S")
     scrollbar_messages.grid(row=2, column=3, ipady=170, sticky="e")
     listbox_messages.grid(row=2, column=2, ipadx=100, ipady=110)
 
@@ -230,8 +241,11 @@ def send_mail():
     )
     sendmailbutton.grid(row=2, column=4, padx=20)
 
-    backbutton=Button(root,text="Back",command=mainscreen)
-    backbutton.grid(row=3,column=0)
+    select_all_contacts=Button(root,text="Select all",bg="yellow",command=lambda: listbox_contacts.select_set(0, END))
+    select_all_contacts.grid(row=3,column=0)
+
+    backbutton=Button(root,text="Back ↲",command=mainscreen)
+    backbutton.grid(row=4,column=0)
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -299,23 +313,26 @@ def contact_mang():
 
     global fname_entry, lname_entry, email_entry, emails, names, messages, listbox_contacts
 
-    title = Label(root, text="Contact Management")
+    title = Label(root, text="CONTACT MANAGEMENT",font=("Arial",20))
     title.grid(row=0, column=0)
 
+    add_contact_label = Label(root, text="Add Contact",font=("Arial",15))
+    add_contact_label.grid(row=1, column=0)
+
     fname_label = Label(root, text="Enter First Name:")
-    fname_label.grid(row=1, column=0, sticky=W + E)
-    fname_entry = Entry(root, exportselection=0, fg="blue")
-    fname_entry.grid(row=1, column=1)
+    fname_label.grid(row=2, column=0, sticky=W)
+    fname_entry = Entry(root, exportselection=0, fg="blue",width=30)
+    fname_entry.grid(row=2, column=0,sticky=E)
 
     lname_label = Label(root, text="Enter Last Name:")
-    lname_label.grid(row=2, column=0, sticky=W + E)
-    lname_entry = Entry(root, exportselection=0, fg="blue")
-    lname_entry.grid(row=2, column=1)
+    lname_label.grid(row=3, column=0, sticky=W)
+    lname_entry = Entry(root, exportselection=0, fg="blue",width=30)
+    lname_entry.grid(row=3, column=0,sticky=E)
 
     email_label = Label(root, text="Enter Email:")
-    email_label.grid(row=3, column=0, sticky=W + E)
-    email_entry = Entry(root, exportselection=0, fg="blue")
-    email_entry.grid(row=3, column=1)
+    email_label.grid(row=4, column=0, sticky=W)
+    email_entry = Entry(root, exportselection=0, fg="blue",width=30)
+    email_entry.grid(row=4, column=0,sticky=E)
 
     add_contact_button = Button(
         root,
@@ -324,22 +341,26 @@ def contact_mang():
             fname_entry.get(), lname_entry.get(), email_entry.get()
         ),
     )
-    add_contact_button.grid(row=4, column=0)
+    add_contact_button.grid(row=5, column=0,sticky=W)
 
     # Listbox
+
+    delete_contact_label=Label(root,text="Delete contact",font=("Arial",15))
+    delete_contact_label.grid(row=6,column=0)
+
     listbox_contacts.config(selectmode="single")
-    scrollbar_contacts.grid(row=5, column=1, pady=40, ipady=110, sticky="w")
-    listbox_contacts.grid(row=5, column=0, ipadx=100, ipady=50)
+    scrollbar_contacts.grid(row=7, column=1, ipady=110, sticky="w")
+    listbox_contacts.grid(row=7, column=0, ipadx=100, ipady=50)
 
     delete_contact_button = Button(
         root,
         text="Delete Contact",
         command=lambda: delete_contact(emails[listbox_contacts.curselection()[0]]),
     )
-    delete_contact_button.grid(row=5, column=1)
+    delete_contact_button.grid(row=8, column=0)
 
-    back_button = Button(root, text="Back", command=mainscreen)
-    back_button.grid(row=6, column=0)
+    back_button = Button(root, text="Back ↲", command=mainscreen)
+    back_button.grid(row=9, column=0,sticky=W)
 
 
 # Contacts listbox
@@ -580,7 +601,7 @@ def email_mang():
     addnewmsgbutton.grid(row=3, column=1)
 
     back_button = Button(
-        root, text="Back", bg="#DE2247", width=20, height=2, command=mainscreen
+        root, text="Back ↲", bg="#DE2247", width=20, height=2, command=mainscreen
     )
     back_button.grid(row=5, column=1)
 
@@ -600,7 +621,7 @@ scrollbar_messages.config(command=listbox_messages.yview)
 
 removeall()
 # Login window
-title = Label(root, text="Email Bot")
+title = Label(root, text="Email Bot",font=("Arial",20))
 title.grid(row=0, column=0)
 username_label = Label(root, text="Enter Email")
 username_label.grid(row=1, column=0)
@@ -612,10 +633,11 @@ password_entry = Entry(root, exportselection=0, fg="blue", show="•",width=30)
 password_entry.grid(row=2, column=1)
 login_button = Button(root, text="Login", command=login)
 login_button.grid(row=3, column=0)
-
+username_entry.bind("<Return>",login)
+password_entry.bind("<Return>", login)
 
 # Options menu
-options_title = Label(root, text="Menu")
+options_title = Label(root, text="Menu",font=("Arial",20))
 contact_mang_button = Button(root, text="Contact management", command=contact_mang)
 email_mang_button = Button(root, text="Email management", command=email_mang)
 send_email_button = Button(root, text="Send Email", command=send_mail)
