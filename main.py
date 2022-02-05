@@ -619,6 +619,18 @@ scrollbar_messages.config(command=listbox_messages.yview)
 
 # ----------------------------------------------------------------------------------------------------------------------
 
+def logout():
+    removeall()
+    title.grid(row=0, column=0)
+    username_label.grid(row=1, column=0)
+    username_entry.grid(row=1, column=1)
+    password_label.grid(row=2, column=0)
+    password_entry.grid(row=2, column=1)
+    login_button.grid(row=3, column=0)
+    username_entry.bind("<Return>",login)
+    password_entry.bind("<Return>", login)
+
+
 removeall()
 # Login window
 title = Label(root, text="Email Bot",font=("Arial",20))
@@ -641,6 +653,7 @@ options_title = Label(root, text="Menu",font=("Arial",20))
 contact_mang_button = Button(root, text="Contact management", command=contact_mang)
 email_mang_button = Button(root, text="Email management", command=email_mang)
 send_email_button = Button(root, text="Send Email", command=send_mail)
+logout_button=Button(root,text="Logout",command=logout)
 
 
 def mainscreen():
