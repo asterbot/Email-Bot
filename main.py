@@ -125,13 +125,18 @@ def login(event=None):
         context = ssl.create_default_context()
         server = smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context)
         server.login(sender, password)
-    
+
+        #Clearing text fields
+        username_entry.delete(0,END)
+        password_entry.delete(0,END)
+   
         removeall()
 
         options_title.grid(row=0, column=1)
         contact_mang_button.grid(row=1, column=0)
         email_mang_button.grid(row=1, column=2)
         send_email_button.grid(row=2, column=1)
+        logout_button.grid(row=3,column=1)
     except:
         messagebox.showerror("Error","We were not able to log you in. This could be because\n- You entered incorrect credentials, or \n- You do not have a stable network connection")
 
@@ -664,6 +669,6 @@ def mainscreen():
     contact_mang_button.grid(row=1, column=0)
     email_mang_button.grid(row=1, column=2)
     send_email_button.grid(row=2, column=1)
-
+    logout_button.grid(row=3,column=0)
 
 root.mainloop()
