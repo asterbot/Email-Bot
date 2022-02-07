@@ -345,8 +345,9 @@ def contact_mang():
         command=lambda: add_manual_contact(
             fname_entry.get(), lname_entry.get(), email_entry.get()
         ),
+        bg="#90EE90",
     )
-    add_contact_button.grid(row=5, column=0,sticky=W)
+    add_contact_button.grid(row=5, column=0)
 
     # Listbox
 
@@ -361,6 +362,7 @@ def contact_mang():
         root,
         text="Delete Contact",
         command=lambda: delete_contact(emails[listbox_contacts.curselection()[0]]),
+        bg="#EE4B2B",
     )
     delete_contact_button.grid(row=8, column=0)
 
@@ -594,21 +596,20 @@ def email_mang():
         root,
         text="View/Edit/Delete message",
         bg="cyan",
-        width=20,
-        height=2,
         command=vieweditmsg,
+        width=20, height=2
     )
-    viewmsgbutton.grid(row=2, column=1)
+    viewmsgbutton.grid(row=2, column=1,sticky=W)
 
     addnewmsgbutton = Button(
-        root, text="Add new message", bg="orange", width=20, height=2, command=addnewmsg
+        root, text="Add new message", bg="orange", command=addnewmsg,width=20, height=2
     )
-    addnewmsgbutton.grid(row=3, column=1)
+    addnewmsgbutton.grid(row=2, column=1,sticky=E)
 
     back_button = Button(
-        root, text="Back ↲", bg="#DE2247", width=20, height=2, command=mainscreen
+        root, text="Back ↲", bg="#DE2247", command=mainscreen,width=20, height=2
     )
-    back_button.grid(row=5, column=1)
+    back_button.grid(row=3, column=1,sticky=W,pady=10)
 
 
 # Messages listbox
@@ -669,6 +670,6 @@ def mainscreen():
     contact_mang_button.grid(row=1, column=0)
     email_mang_button.grid(row=1, column=2)
     send_email_button.grid(row=2, column=1)
-    logout_button.grid(row=3,column=0)
+    logout_button.grid(row=3,column=1)
 
 root.mainloop()
