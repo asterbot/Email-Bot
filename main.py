@@ -16,7 +16,7 @@ def db_connect():
 
     try:
         db = mysql.connector.connect(
-            host="localhost", user="root", passwd="root", database="email_bot"
+            host="localhost", user="root", passwd="", database="email_bot"
         )
 
     # create database if it doesn't exist

@@ -8,7 +8,7 @@ import mysql.connector
 
 # login to mysql
 db = mysql.connector.connect(
-    host="localhost", user="root", passwd="password", database="email_bot"
+    host="localhost", user="root", passwd="", database="email_bot"
 )
 
 mycursor = db.cursor()
